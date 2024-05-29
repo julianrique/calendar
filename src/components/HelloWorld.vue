@@ -1,110 +1,46 @@
 <template>
-  <div class="calendar">
-    <div class="header">
-      <button @click="prevMonth">&lt;</button>
-      <span>{{ monthYear }}</span>
-      <button @click="nextMonth">&gt;</button>
+  <div>
+    <div v-for="event in events" :key="event.id">
+      {{ event.title }} - {{ event.start }}
+      <button @click="editEvent(event)">Editar</button>
+      <button @click="deleteEvent(event.id)">Eliminar</button>
     </div>
-    <div class="weekdays">
-      <div v-for="day in weekdays" :key="day">{{ day }}</div>
-    </div>
-    <div class="days">
-      <div
-          v-for="day in days"
-          :key="day.date"
-          :class="{ today: isToday(day.date), otherMonth: !day.currentMonth }"
-      >
-        {{ day.date.getDate() }}
-      </div>
+    <div class="event-form">
+      <input v-model="newEvent.title" placeholder="Título del evento" />
+      <input v-model="newEvent.start" type="time" />
+      <button @click="addEvent">Agregar evento</button>
     </div>
   </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue';
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format } from 'date-fns';
+<script setup>
+import { ref } from 'vue';
 
-export default {
-  name: 'Calendar',
-  setup() {
-    const today = new Date();
-    const currentDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
+const events = ref([
+  { id: 1, title: 'Reunión importante', start: '2024-05-28T10:00:00', end: '2024-05-28T11:00:00' },
+]);
 
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const newEvent = ref({
+  title: '',
+  start: '',
+});
 
-    const monthYear = computed(() => format(currentDate.value, 'MMMM yyyy'));
+function editEvent(event) {
+  // Lógica para editar el evento
+  // Puedes abrir un modal con los detalles del evento y permitir al usuario modificarlos
+}
 
-    const days = computed(() => {
-      const start = startOfWeek(startOfMonth(currentDate.value));
-      const end = endOfWeek(endOfMonth(currentDate.value));
+function deleteEvent(eventId) {
+  // Lógica para eliminar el evento
+  events.value = events.value.filter(event => event.id !== eventId);
+}
 
-      const daysArray = [];
-      let day = start;
-
-      while (day <= end) {
-        daysArray.push({
-          date: new Date(day),
-          currentMonth: day.getMonth() === currentDate.value.getMonth(),
-        });
-        day = addDays(day, 1);
-      }
-
-      return daysArray;
-    });
-
-    const isToday = (date) => {
-      const today = new Date();
-      return (
-          date.getDate() === today.getDate() &&
-          date.getMonth() === today.getMonth() &&
-          date.getFullYear() === today.getFullYear()
-      );
-    };
-
-    const prevMonth = () => {
-      currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1);
-    };
-
-    const nextMonth = () => {
-      currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1);
-    };
-
-    return {
-      weekdays,
-      monthYear,
-      days,
-      isToday,
-      prevMonth,
-      nextMonth,
-    };
-  },
-};
+function addEvent() {
+  // Lógica para agregar un nuevo evento
+  if (newEvent.value.title && newEvent.value.start) {
+    const id = events.value.length + 1;
+    events.value.push({ ...newEvent.value, id });
+    newEvent.value = { title: '', start: '' };
+  }
+}
 </script>
-
-<style scoped>
-.calendar {
-  width: 300px;
-  margin: 0 auto;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.weekdays, .days {
-  display: flex;
-  flex-wrap: wrap;
-}
-.weekdays div, .days div {
-  width: calc(100% / 7);
-  text-align: center;
-  padding: 10px 0;
-}
-.today {
-  background-color: #f0f0f0;
-}
-.otherMonth {
-  color: #ccc;
-}
-</style>
-
