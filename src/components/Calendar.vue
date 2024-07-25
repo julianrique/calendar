@@ -117,7 +117,7 @@ const getDataWeather = async () => {
         params: {
           lat: 40.8762106,
           lon: -74.0298621,
-          appid: '4aa474e368a4b330d21f72c4b5305231',
+          appid: '',
         }
       }
   ).then(value => {
